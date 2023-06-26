@@ -4,7 +4,16 @@ import Image from "next/image";
 import html2canvas from "html2canvas";
 import { useCallback, useEffect, useState } from "react";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Space, Layout, message, Upload,DatePicker } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Space,
+  Layout,
+  message,
+  Upload,
+  DatePicker,
+} from "antd";
 import { Box } from "@mui/material";
 
 import { UploadOutlined } from "@ant-design/icons";
@@ -17,8 +26,8 @@ type PosterMeta = {
   media: Orgs[];
   supporter: UserInfo[];
   speaker: UserInfo[];
-  time:Date;
-  address:string;
+  time: Date;
+  address: string;
 };
 type Orgs = {
   logo: string;
@@ -62,14 +71,18 @@ let defPoster = {
   },
   coOrganizer: [
     {
-      name: "SeeDao",
-      logo: "https://beta.seedao.cc/assets/see_dao_logo_white-f56e82b3.png",
+      name: "NFTScan",
+      logo: "https://seedao.xyz/images/logo-dark.png",
     },
   ],
   media: [
     {
-      name: "SeeDao",
-      logo: "https://beta.seedao.cc/assets/see_dao_logo_white-f56e82b3.png",
+      name: "Ensoul",
+      logo: "https://seedao.xyz/images/portfolio/ensoul.png",
+    },
+    {
+      name: "PfpDAO",
+      logo: "https://seedao.xyz/images/portfolio/pfpdao.jpeg",
     },
   ],
   supporter: [
@@ -105,38 +118,37 @@ export default function Home() {
   //   }
   // }, []);
   const [poster, setPoster] = useState<any>(defPoster);
-  let ground = document.getElementById("ground");
-
-  
 
   const saveImage = useCallback(() => {
-    let ground = document.getElementById("ground");
-    if (ground) {
-      const html_2_canvas_option = {
-        useCORS: true,
-        scale: 2,
-        width: ground.scrollWidth,
-        height: ground.scrollHeight,
-        windowWidth: ground.scrollWidth,
-        windowHeight: ground.scrollHeight,
-        dpi: 300,
-        x:0,
-        y:0
-      };
-      html2canvas(ground, html_2_canvas_option).then((canvasEl) => {
-        const imageBase64 = canvasEl.toDataURL("image/png"); // 得到base64
-        // 下载到本地
-        const { firstChild: canvas }: any = imageBase64;
-        const img = new window.Image();
-        img.src = canvasEl.toDataURL("image/png");
-        img.onload = () => {
-          const link = document.createElement("a");
-          link.href = img.src;
-          link.download = `poster.png`;
-          const event = new MouseEvent("click"); // 创建一个单击事件
-          link.dispatchEvent(event); // 主动触发a标签的click事件下载
+    if (process.browser) {
+      let ground = document.getElementById("ground");
+      if (ground) {
+        const html_2_canvas_option = {
+          useCORS: true,
+          scale: 2,
+          width: ground.scrollWidth,
+          height: ground.scrollHeight,
+          windowWidth: ground.scrollWidth,
+          windowHeight: ground.scrollHeight,
+          dpi: 300,
+          x: 0,
+          y: 0,
         };
-      });
+        html2canvas(ground, html_2_canvas_option).then((canvasEl) => {
+          const imageBase64 = canvasEl.toDataURL("image/png"); // 得到base64
+          // 下载到本地
+          const { firstChild: canvas }: any = imageBase64;
+          const img = new window.Image();
+          img.src = canvasEl.toDataURL("image/png");
+          img.onload = () => {
+            const link = document.createElement("a");
+            link.href = img.src;
+            link.download = `poster.png`;
+            const event = new MouseEvent("click"); // 创建一个单击事件
+            link.dispatchEvent(event); // 主动触发a标签的click事件下载
+          };
+        });
+      }
     }
   }, []);
   const onFinish = (values: any) => {
@@ -168,7 +180,7 @@ export default function Home() {
             >
               <Input />
             </Form.Item>
-            <Form.Item label="Sub Title" name="subtitle">
+            <Form.Item label="Sub Title" name="subTitle">
               <Input />
             </Form.Item>
             <Form.Item
@@ -176,15 +188,11 @@ export default function Home() {
               name="time"
               rules={[{ required: true, message: "Please input your time!" }]}
             >
-                  <DatePicker showTime  />
-
-              </Form.Item>
-              <Form.Item
-              label="地点"
-              name="address"
-            >
-                  <Input />
-              </Form.Item>
+              <DatePicker showTime />
+            </Form.Item>
+            <Form.Item label="地点" name="address">
+              <Input />
+            </Form.Item>
             <Form.Item label="主办方" name={["organizer", "name"]}>
               <Input />
             </Form.Item>
@@ -443,21 +451,20 @@ export default function Home() {
           <div
             id="ground"
             style={{
-            
-              background: "url('/temp1.jpg') center center  no-repeat ",
-         
+              background: "url('/temp1.jpg') top center  no-repeat ",
             }}
           >
             <div className="poster_organizer">
               <img src={poster.organizer.logo} />
-              <span>{poster.organizer.name}</span>
+              {/* <span>{poster.organizer.name}</span> */}
             </div>
             <h1 style={{ textAlign: "right" }}>{poster.title}</h1>
             <h2 style={{ textAlign: "right" }}>{poster.subTitle}</h2>
             <h3 style={{ textAlign: "right" }}>{poster.time?.toString()}</h3>
+            <h3 style={{ textAlign: "right" }}>{poster.address}</h3>
 
             <div className="poster_speaker" style={{ display: "flex" }}>
-            
+              嘉宾:
               {poster.speaker.length > 0 &&
                 poster.speaker.map((item: any, index: number) => {
                   return (
@@ -474,13 +481,25 @@ export default function Home() {
                   );
                 })}
             </div>
-            <div className="poster_coOrger" style={{ display: "flex" }}>
-            
+            <div className="poster_speaker" style={{ display: "flex" }}>
+              协办方:
               {poster.coOrganizer.length > 0 &&
-                poster.speaker.map((item: any, index: number) => {
+                poster.coOrganizer.map((item: any, index: number) => {
                   return (
                     <div key={index}>
-                      <img src={item.head} width={100} height={100} />
+                      <img src={item.logo} /> {item.name}
+                     
+                    </div>
+                  );
+                })}
+            </div>
+            <div className="poster_speaker" style={{ display: "flex" }}>
+              合作媒体:
+              {poster.coOrganizer.length > 0 &&
+                poster.media.map((item: any, index: number) => {
+                  return (
+                    <div key={index}>
+                      <img src={item.logo}  />
                       <div>
                         <h3 className="speaker">
                           {item.name}
