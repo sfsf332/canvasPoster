@@ -1,6 +1,7 @@
 "use client";
+import { Oswald } from "next/font/google";
+import { Inter } from "next/font/google";
 
-import Image from "next/image";
 import html2canvas from "html2canvas";
 import { useCallback, useEffect, useState } from "react";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
@@ -9,12 +10,16 @@ import {
   Form,
   Input,
   Space,
-  Layout,
   message,
   Upload,
   DatePicker,
+  Row,
+  Col,
 } from "antd";
 import { Box } from "@mui/material";
+import { QRCodeSVG } from "qrcode.react";
+const oswald = Oswald({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] });
 
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
@@ -22,12 +27,14 @@ type PosterMeta = {
   title: string;
   subTitle: string;
   organizer: Orgs;
-  coOrganizer: Orgs[];
-  media: Orgs[];
-  supporter: UserInfo[];
+  // coOrganizer: Orgs[];
+  // media: Orgs[];
+  // supporter: UserInfo[];
   speaker: UserInfo[];
   time: Date;
-  address: string;
+  // address: string;
+  zoomId: string;
+  twitterSpaceId: string;
 };
 type Orgs = {
   logo: string;
@@ -37,7 +44,7 @@ type UserInfo = {
   head: string;
   name: string;
   info: string;
-  twitter: string;
+  // twitter: string;
 };
 const props: UploadProps = {
   name: "file",
@@ -63,28 +70,31 @@ interface Window {
   };
 }
 let defPoster = {
-  title: "SeeDao",
-  subTitle: "SeeDao活动",
+  title: "活动主标题",
+  subTitle: "活动副标题活动副标题活动副标题活动副标题",
+  twitterSpaceId: "1BRKjZQgLRwKw",
+  zoomId: "85063791080",
   organizer: {
     name: "SeeDao",
-    logo: "https://beta.seedao.cc/assets/see_dao_logo_white-f56e82b3.png",
+    logo: "/logo_seedao.png",
   },
-  coOrganizer: [
-    {
-      name: "NFTScan",
-      logo: "https://seedao.xyz/images/logo-dark.png",
-    },
-  ],
-  media: [
-    {
-      name: "Ensoul",
-      logo: "https://seedao.xyz/images/portfolio/ensoul.png",
-    },
-    {
-      name: "PfpDAO",
-      logo: "https://seedao.xyz/images/portfolio/pfpdao.jpeg",
-    },
-  ],
+
+  // coOrganizer: [
+  //   {
+  //     name: "NFTScan",
+  //     logo: "https://seedao.xyz/images/logo-dark.png",
+  //   },
+  // ],
+  // media: [
+  //   {
+  //     name: "Ensoul",
+  //     logo: "https://seedao.xyz/images/portfolio/ensoul.png",
+  //   },
+  //   {
+  //     name: "PfpDAO",
+  //     logo: "https://seedao.xyz/images/portfolio/pfpdao.jpeg",
+  //   },
+  // ],
   supporter: [
     {
       head: "https://beta.seedao.cc/assets/see_dao_logo_white-f56e82b3.png",
@@ -109,14 +119,6 @@ let defPoster = {
   ],
 };
 export default function Home() {
-  // useEffect(() => {
-  //   let ground = document.getElementById("ground");
-  //   if (ground) {
-  //     html2canvas(ground, html_2_canvas_option).then(function (canvas) {
-  //       document.querySelector("#canvas")?.appendChild(canvas);
-  //     });
-  //   }
-  // }, []);
   const [poster, setPoster] = useState<any>(defPoster);
 
   const saveImage = useCallback(() => {
@@ -157,148 +159,60 @@ export default function Home() {
   };
   return (
     <Box sx={{ maxWidth: "100%", padding: "0!important" }}>
-      <Box
-        display="flex"
-        justifyContent="center"
-        margin="0 auto"
-        width={"100%"}
-      >
-        <Box width={800}>
+      <Box justifyContent="center" margin="0 auto" width={"100%"}>
+        <Box width={1200}>
           <Form
             name="poster"
             onFinish={onFinish}
-            style={{ maxWidth: 800 }}
+            style={{ maxWidth: 1200 }}
             initialValues={defPoster}
             autoComplete="off"
             labelCol={{ span: 4 }}
             wrapperCol={{ span: 20 }}
           >
             <Form.Item
-              label="Title"
+              label="主标题"
               name="title"
-              rules={[{ required: true, message: "Please input your title!" }]}
+              rules={[{ required: true, message: "请输入主标题!" }]}
             >
               <Input />
             </Form.Item>
-            <Form.Item label="Sub Title" name="subTitle">
+            <Form.Item label="副标题" name="subTitle">
               <Input />
             </Form.Item>
+
             <Form.Item
               label="时间"
               name="time"
-              rules={[{ required: true, message: "Please input your time!" }]}
+              rules={[{ required: true, message: "请选择活动时间" }]}
             >
               <DatePicker showTime />
             </Form.Item>
-            <Form.Item label="地点" name="address">
+            <Form.Item
+              label="ZoomId"
+              name="zoomId"
+              rules={[{ required: true, message: "请输入ZoomID" }]}
+            >
               <Input />
             </Form.Item>
+            <Form.Item
+              label="SpaceId"
+              name="twitterSpaceId"
+              rules={[{ required: true, message: "请输入twitterSpaceId" }]}
+            >
+              <Input />
+            </Form.Item>
+            {/* <Form.Item label="地点" name="address">
+              <Input />
+            </Form.Item> */}
             <Form.Item label="主办方" name={["organizer", "name"]}>
               <Input />
             </Form.Item>
             <Form.Item label="主办方Logo" name={["organizer", "logo"]}>
               <Input />
             </Form.Item>
-            <Form.Item label="协办方">
-              <Form.List name="coOrganizer">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Space
-                        key={key}
-                        style={{ display: "flex", marginBottom: 8 }}
-                        align="baseline"
-                      >
-                        <Form.Item
-                          {...restField}
-                          label="名称"
-                          name={[name, "name"]}
-                          rules={[
-                            { required: true, message: "缺失协办方名称" },
-                          ]}
-                        >
-                          <Input placeholder="协办方名称" />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          label="logo"
-                          name={[name, "logo"]}
-                          rules={[
-                            { required: true, message: "缺失协办方logo" },
-                          ]}
-                        >
-                          {/* <Upload {...props}>
-                            <Button icon={<UploadOutlined />}>
-                              Click to Upload
-                            </Button>
-                          </Upload> */}
-                          <Input />
-                        </Form.Item>
-                        <MinusCircleOutlined onClick={() => remove(name)} />
-                      </Space>
-                    ))}
-                    <Form.Item>
-                      <Button
-                        type="dashed"
-                        onClick={() => add()}
-                        block
-                        icon={<PlusOutlined />}
-                      >
-                        添加协办方
-                      </Button>
-                    </Form.Item>
-                  </>
-                )}
-              </Form.List>
-            </Form.Item>
-            <Form.Item label="媒体">
-              <Form.List name="media">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Space
-                        key={key}
-                        style={{ display: "flex", marginBottom: 8 }}
-                        align="baseline"
-                      >
-                        <Form.Item
-                          {...restField}
-                          label="名称"
-                          name={[name, "name"]}
-                          rules={[{ required: true, message: "缺失媒体名称" }]}
-                        >
-                          <Input placeholder="媒体名称" />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          label="logo"
-                          name={[name, "logo"]}
-                          rules={[{ required: true, message: "缺失媒体logo" }]}
-                        >
-                          {/* <Upload {...props}>
-                            <Button icon={<UploadOutlined />}>
-                              Click to Upload
-                            </Button>
-                          </Upload> */}
-                          <Input />
-                        </Form.Item>
-                        <MinusCircleOutlined onClick={() => remove(name)} />
-                      </Space>
-                    ))}
-                    <Form.Item>
-                      <Button
-                        type="dashed"
-                        onClick={() => add()}
-                        block
-                        icon={<PlusOutlined />}
-                      >
-                        添加媒体
-                      </Button>
-                    </Form.Item>
-                  </>
-                )}
-              </Form.List>
-            </Form.Item>
+
+            {/*  */}
             <Form.Item label="主持人">
               <Form.List name="supporter">
                 {(fields, { add, remove }) => (
@@ -340,7 +254,7 @@ export default function Home() {
                         >
                           <Input placeholder="主持人简介" />
                         </Form.Item>
-                        <Form.Item
+                        {/* <Form.Item
                           {...restField}
                           label="twitter"
                           name={[name, "twitter"]}
@@ -349,7 +263,7 @@ export default function Home() {
                           ]}
                         >
                           <Input placeholder="主持人twitter" />
-                        </Form.Item>
+                        </Form.Item> */}
                         <MinusCircleOutlined onClick={() => remove(name)} />
                       </Space>
                     ))}
@@ -405,7 +319,7 @@ export default function Home() {
                         >
                           <Input placeholder="主持人简介" />
                         </Form.Item>
-                        <Form.Item
+                        {/* <Form.Item
                           {...restField}
                           label="twitter"
                           name={[name, "twitter"]}
@@ -414,10 +328,11 @@ export default function Home() {
                           ]}
                         >
                           <Input placeholder="主持人twitter" />
-                        </Form.Item>
+                        </Form.Item> */}
                         <MinusCircleOutlined onClick={() => remove(name)} />
                       </Space>
                     ))}
+
                     <Form.Item>
                       <Button
                         type="dashed"
@@ -432,84 +347,134 @@ export default function Home() {
                 )}
               </Form.List>
             </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => {
-                  saveImage();
-                }}
-              >
-                save
-              </Button>
-            </Form.Item>
+            <Row>
+              <Col span={24} style={{ textAlign: "center" }}>
+                <Button
+                  type="primary"
+                  size="large"
+                  htmlType="submit"
+                  style={{
+                    margin: "0 20px",
+                  }}
+                >
+                  Submit
+                </Button>
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => {
+                    saveImage();
+                  }}
+                  style={{
+                    margin: "0 20px",
+                  }}
+                >
+                  save
+                </Button>
+              </Col>
+            </Row>
+            <Form.Item></Form.Item>
           </Form>
         </Box>
-        <Box flex={1}>
+        <Box width={"100%"}>
           <div
             id="ground"
             style={{
-              background: "url('/temp1.jpg') top center  no-repeat ",
+              background: "url('/bg.png') top center  no-repeat ",
             }}
           >
-            <div className="poster_organizer">
-              <img src={poster.organizer.logo} />
-              {/* <span>{poster.organizer.name}</span> */}
+            <div className="header ">
+              <div className="logo">
+                <img src={poster.organizer.logo} width={265} />
+              </div>
+              <div className="space">
+                <div className="space_item">
+                  <div className={oswald.className + " title"}>
+                    <img src="/icon_zoom.png" className="space_logo" />
+                    <span>
+                      {poster.zoomId.substring(0, 3)}
+                      {"-"}
+                      {poster.zoomId.substring(3, 6)}
+                      {"-"}
+                      {poster.zoomId.substring(6, 9)}
+                    </span>
+                  </div>
+                  <div className="qr">
+                    <QRCodeSVG
+                      value={"https://us06web.zoom.us/j/" + poster.zoomId}
+                      size={90}
+                    />
+                  </div>
+                </div>
+                <div className="space_item">
+                  <div className={oswald.className + " title"}>
+                    <img src="/icon_twitter.png" className="space_logo" />
+                    <span>{poster.twitterSpaceId}</span>
+                  </div>
+                  <div
+                    className="qr"
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    <QRCodeSVG
+                      value={
+                        "https://twitter.com/i/spaces/" + poster.twitterSpaceId
+                      }
+                      size={90}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-            <h1 style={{ textAlign: "right" }}>{poster.title}</h1>
-            <h2 style={{ textAlign: "right" }}>{poster.subTitle}</h2>
-            <h3 style={{ textAlign: "right" }}>{poster.time?.toString()}</h3>
-            <h3 style={{ textAlign: "right" }}>{poster.address}</h3>
+            <div className="content">
+              <h1 className={inter.className}>{poster.title}</h1>
+              <h2 className={inter.className}>{poster.subTitle}</h2>
+              <h3 className={oswald.className}>{poster.time?.toString()}</h3>
 
-            <div className="poster_speaker" style={{ display: "flex" }}>
-              嘉宾:
-              {poster.speaker.length > 0 &&
-                poster.speaker.map((item: any, index: number) => {
-                  return (
-                    <div key={index}>
-                      <img src={item.head} width={100} height={100} />
-                      <div>
-                        <h3 className="speaker">
-                          {item.name}
-                          <span>{item.info}</span>
-                        </h3>
-                        <p>{item.twitter}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-            <div className="poster_speaker" style={{ display: "flex" }}>
-              协办方:
-              {poster.coOrganizer.length > 0 &&
-                poster.coOrganizer.map((item: any, index: number) => {
-                  return (
-                    <div key={index}>
-                      <img src={item.logo} /> {item.name}
-                     
-                    </div>
-                  );
-                })}
-            </div>
-            <div className="poster_speaker" style={{ display: "flex" }}>
-              合作媒体:
-              {poster.coOrganizer.length > 0 &&
-                poster.media.map((item: any, index: number) => {
-                  return (
-                    <div key={index}>
-                      <img src={item.logo}  />
-                      <div>
-                        <h3 className="speaker">
-                          {item.name}
-                          <span>{item.info}</span>
-                        </h3>
-                        <p>{item.twitter}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* <h3 style={{ textAlign: "right" }}>{poster.address}</h3> */}
+
+              <div className="poster_speaker" style={{ display: "flex" }}>
+                <div className="speaker_List">
+                  <label className={oswald.className}>HOST</label>
+                  <div className="speaker_item">
+                    {poster.supporter &&
+                      poster.supporter.length > 0 &&
+                      poster.supporter.map((item: any, index: number) => {
+                        return (
+                          <div key={index} className="speaker_box">
+                            <img src={item.head} width={140} height={140} />
+
+                            <h3 className={oswald.className}>
+                              {item.name}
+                              {/* <span>{item.info}</span> */}
+                            </h3>
+                            <p className={oswald.className}>{item.info}</p>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+                <div className="speaker_List">
+                  <label className={oswald.className}>GUEST</label>
+                  <div className="speaker_item">
+                    {poster.speaker.length > 0 &&
+                      poster.speaker.map((item: any, index: number) => {
+                        return (
+                          <div key={index} className="speaker_box">
+                            <img src={item.head} width={140} height={140} />
+
+                            <h3 className={oswald.className}>
+                              {item.name}
+                              {/* <span>{item.info}</span> */}
+                            </h3>
+                            <p className={oswald.className}>{item.info}</p>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </Box>
