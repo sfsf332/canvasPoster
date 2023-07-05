@@ -191,7 +191,6 @@ export default function Home() {
             <Form.Item
               label="ZoomId"
               name="zoomId"
-              rules={[{ required: true, message: "请输入ZoomID" }]}
             >
               <Input />
             </Form.Item>
@@ -388,6 +387,7 @@ export default function Home() {
                 <img src={poster.organizer.logo} width={265} />
               </div>
               <div className="space">
+                {poster.zoomId&&(
                 <div className="space_item">
                   <div className={oswald.className + " title"}>
                     <img src="/icon_zoom.png" className="space_logo" />
@@ -406,6 +406,7 @@ export default function Home() {
                     />
                   </div>
                 </div>
+                )}
                 <div className="space_item">
                   <div className={oswald.className + " title"}>
                     <img src="/icon_twitter.png" className="space_logo" />

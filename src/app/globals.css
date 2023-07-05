@@ -147,12 +147,17 @@ a {
 }
 .content h1{
   font-size: 80px;
+  font-weight: 400;
 }
 .content h2{
   font-size: 50px;
+  font-weight: 400;
+
 }
 .content h3{
   font-size: 28px;
+  font-weight: 400;
+
 }
 .poster_speaker{
   display: flex;
